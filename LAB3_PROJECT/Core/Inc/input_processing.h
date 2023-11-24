@@ -15,7 +15,10 @@
 
 void setAllLeds();
 void offAllLeds();
-void blinkingLeds();
+
+void blinkingRed();
+void blinkingAmber();
+void blinkingGreen();
 
 void setRed1();
 void setYellow1();
