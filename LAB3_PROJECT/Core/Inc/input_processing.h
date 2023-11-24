@@ -8,6 +8,21 @@
 #ifndef INC_INPUT_PROCESSING_H_
 #define INC_INPUT_PROCESSING_H_
 
-void fsm_for_input_processing ( void );
+#include "global.h"
+
+#define ON		RESET
+#define OFF		SET
+
+void setAllLeds();
+void offAllLeds();
+void blinkingLeds();
+
+void setRed1();
+void setYellow1();
+void setGreen1();
+
+void setRed2();
+void setYellow2();
+void setGreen2();
 
 #endif /* INC_INPUT_PROCESSING_H_ */

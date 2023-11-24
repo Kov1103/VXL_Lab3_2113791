@@ -4,56 +4,75 @@
  *  Created on: Nov 9, 2023
  *      Author: Admin
  */
-# include "main.h"
-// we aim to work with more than one buttons
-# define N0_OF_BUTTONS 1
-// timer interrupt duration is 10ms , so to pass 1 second ,
-// we need to jump to the interrupt service routine 100 time
-# define DURATION_FOR_AUTO_INCREASING 100
-# define BUTTON_IS_PRESSED GPIO_PIN_RESET
-# define BUTTON_IS_RELEASED GPIO_PIN_SET
-// the buffer that the final result is stored after
-// debouncing
-static GPIO_PinState buttonBuffer [ N0_OF_BUTTONS ];
-// we define two buffers for debouncing
-static GPIO_PinState debounceButtonBuffer1 [ N0_OF_BUTTONS ];
-static GPIO_PinState debounceButtonBuffer2 [ N0_OF_BUTTONS ];
-// we define a flag for a button pressed more than 1 second .
-static uint8_t flagForButtonPress1s [ N0_OF_BUTTONS ];
-// we define counter for automatically increasing the value
-// after the button is pressed more than 1 second .
-static uint16_t counterForButtonPress1s [ N0_OF_BUTTONS ];
-void button_reading ( void ){
- for ( char i = 0; i < N0_OF_BUTTONS ; i ++){
-	 debounceButtonBuffer2 [i] = debounceButtonBuffer1 [i];
-	 debounceButtonBuffer1 [i] = HAL_GPIO_ReadPin (BUTTON_1_GPIO_Port , BUTTON_1_Pin );
-	 if( debounceButtonBuffer1 [i] == debounceButtonBuffer2 [i])
-		 buttonBuffer [i] = debounceButtonBuffer1 [i];
-	 if( buttonBuffer [i] == BUTTON_IS_PRESSED ){
-	 // if a button is pressed , we start counting
-		 if( counterForButtonPress1s [i] < DURATION_FOR_AUTO_INCREASING ){
-			 counterForButtonPress1s [i ]++;
-		 }
-		 else {
-			 // the flag is turned on when 1 second has passed
-			 // since the button is pressed .
-			 flagForButtonPress1s [i] = 1;
-			 // todo
-		 }
-	 }
-	 else {
-		 counterForButtonPress1s [i] = 0;
-		 flagForButtonPress1s [i] = 0;
-	 }
-   }
- }
 
- unsigned char is_button_pressed ( uint8_t index ){
-  if( index >= N0_OF_BUTTONS ) return 0;
-  return ( buttonBuffer [ index ] == BUTTON_IS_PRESSED );
+
+#include "input_reading.h"
+
+static int buttonBuffer[NUM_OF_BUTTONS] = { NORMAL_STATE };
+static int debounceButtonBuffer1[NUM_OF_BUTTONS] = { NORMAL_STATE };
+static int debounceButtonBuffer2[NUM_OF_BUTTONS] = { NORMAL_STATE };
+static int longPressButtonBuffer[NUM_OF_BUTTONS] = { NORMAL_STATE };
+
+int button_flag[NUM_OF_BUTTONS];
+int TimeOutForKeyPress[NUM_OF_BUTTONS];
+
+void clearAllButtons() {
+	for (int i = 0; i < NUM_OF_BUTTONS; i++) {
+		debounceButtonBuffer1[i] = NORMAL_STATE;
+		debounceButtonBuffer2[i] = NORMAL_STATE;
+		buttonBuffer[i] = NORMAL_STATE;
+	}
+	HAL_GPIO_WritePin(BUTTON_1_GPIO_Port, BUTTON_1_Pin, NORMAL_STATE);
+	HAL_GPIO_WritePin(BUTTON_2_GPIO_Port, BUTTON_2_Pin, NORMAL_STATE);
+	HAL_GPIO_WritePin(BUTTON_3_GPIO_Port, BUTTON_3_Pin, NORMAL_STATE);
 }
 
-unsigned char is_button_pressed_1s ( unsigned char index ){
-  if( index >= N0_OF_BUTTONS ) return 0xff;
-  return ( flagForButtonPress1s [ index ] == 1);
+int isButtonPressed(int index) {
+	if (button_flag[index] == 1) {
+		button_flag[index] = 0;
+		return 1;
+	}
+	return 0;
+}
+
+void subKeyProcess(int index) {
+	button_flag[index] = 1;
+}
+
+void getKeyInput() {
+	for (int i = 0; i < NUM_OF_BUTTONS; i++) {
+		debounceButtonBuffer1[i] = debounceButtonBuffer2[i];
+		debounceButtonBuffer2[i] = buttonBuffer[i];
+
+		//Read signal from user
+		if (i == 0) {
+			buttonBuffer[i] = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port,
+			BUTTON_1_Pin);
+		} else if (i == 1) {
+			buttonBuffer[i] = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port,
+			BUTTON_2_Pin);
+		} else if (i == 2) {
+			buttonBuffer[i] = HAL_GPIO_ReadPin(BUTTON_3_GPIO_Port,
+			BUTTON_3_Pin);
+		}
+		//debouncing step
+		if ((debounceButtonBuffer1[i] == debounceButtonBuffer2[i])
+				&& (debounceButtonBuffer2[i] == buttonBuffer[i])) {
+			if (buttonBuffer[i] != longPressButtonBuffer[i]) {
+				longPressButtonBuffer[i] = buttonBuffer[i];
+				//when pressed, do subKeyProcess()
+				if (buttonBuffer[i] == PRESSED_STATE) {
+					TimeOutForKeyPress[i] = TIME_OUT_FOR_KEY_PRESS;
+					subKeyProcess(i);
+				}
+			}
+
+			else {
+				TimeOutForKeyPress[i]--;
+				if (TimeOutForKeyPress[i] == 0) {
+					longPressButtonBuffer[i] = NORMAL_STATE;
+				}
+			}
+		}
+	}
 }

@@ -6,34 +6,67 @@
  */
 
 
-# include "main.h"
-# include "input_reading.h"
+#include "input_processing.h"
 
-enum ButtonState { BUTTON_RELEASED , BUTTON_PRESSED , BUTTON_PRESSED_MORE_THAN_1_SECOND } ;
-enum ButtonState buttonState = BUTTON_RELEASED ;
- void fsm_for_input_processing ( void ){
-  switch ( buttonState ){
-  case BUTTON_RELEASED :
-    if( is_button_pressed (0)){
-      buttonState = BUTTON_PRESSED ;
-      // INCREASE VALUE OF PORT A BY ONE UNIT
-    }
-	break ;
-  case BUTTON_PRESSED :
-	if (! is_button_pressed (0)){
-	  buttonState = BUTTON_RELEASED ;
-	}
-	else {
-	  if( is_button_pressed_1s (0)){
-		buttonState = BUTTON_PRESSED_MORE_THAN_1_SECOND ;
-	  }
-	}
-	break ;
-  case BUTTON_PRESSED_MORE_THAN_1_SECOND :
-	if (! is_button_pressed (0)){
-	  buttonState = BUTTON_RELEASED ;
-	}
-	// todo
-	break ;
-  }
+//this function is used to turn on all leds
+void setAllLeds() {
+	HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, ON);
+	HAL_GPIO_WritePin(LED_YELLOW_GPIO_Port, LED_YELLOW_Pin, ON);
+	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, ON);
+
+	HAL_GPIO_WritePin(LED_RED_2_GPIO_Port, LED_RED_2_Pin, ON);
+	HAL_GPIO_WritePin(LED_YELLOW_2_GPIO_Port, LED_YELLOW_2_Pin, ON);
+	HAL_GPIO_WritePin(LED_GREEN_2_GPIO_Port, LED_GREEN_2_Pin, ON);
+}
+//this function is used to blink all leds
+void blinkingLeds(){
+	HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+	HAL_GPIO_TogglePin(LED_YELLOW_GPIO_Port, LED_YELLOW_Pin);
+	HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+
+	HAL_GPIO_TogglePin(LED_RED_2_GPIO_Port, LED_RED_2_Pin);
+	HAL_GPIO_TogglePin(LED_YELLOW_2_GPIO_Port, LED_YELLOW_2_Pin);
+	HAL_GPIO_TogglePin(LED_GREEN_2_GPIO_Port, LED_GREEN_2_Pin);
+}
+//this function is used to turn off all leds
+void offAllLeds() {
+	HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, OFF);
+	HAL_GPIO_WritePin(LED_YELLOW_GPIO_Port, LED_YELLOW_Pin, OFF);
+	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, OFF);
+
+	HAL_GPIO_WritePin(LED_RED_2_GPIO_Port, LED_RED_2_Pin, OFF);
+	HAL_GPIO_WritePin(LED_YELLOW_2_GPIO_Port, LED_YELLOW_2_Pin, OFF);
+	HAL_GPIO_WritePin(LED_GREEN_2_GPIO_Port, LED_GREEN_2_Pin, OFF);
+}
+
+void setRed1() {
+	HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, ON);
+	HAL_GPIO_WritePin(LED_YELLOW_GPIO_Port, LED_YELLOW_Pin, OFF);
+	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, OFF);
+}
+void setYellow1() {
+	HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, OFF);
+	HAL_GPIO_WritePin(LED_YELLOW_GPIO_Port, LED_YELLOW_Pin, ON);
+	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, OFF);
+}
+void setGreen1() {
+	HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, OFF);
+	HAL_GPIO_WritePin(LED_YELLOW_GPIO_Port, LED_YELLOW_Pin, OFF);
+	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, ON);
+}
+
+void setRed2() {
+	HAL_GPIO_WritePin(LED_RED_2_GPIO_Port, LED_RED_2_Pin, ON);
+	HAL_GPIO_WritePin(LED_YELLOW_2_GPIO_Port, LED_YELLOW_2_Pin, OFF);
+	HAL_GPIO_WritePin(LED_GREEN_2_GPIO_Port, LED_GREEN_2_Pin, OFF);
+}
+void setYellow2() {
+	HAL_GPIO_WritePin(LED_RED_2_GPIO_Port, LED_RED_2_Pin, OFF);
+	HAL_GPIO_WritePin(LED_YELLOW_2_GPIO_Port, LED_YELLOW_2_Pin, ON);
+	HAL_GPIO_WritePin(LED_GREEN_2_GPIO_Port, LED_GREEN_2_Pin, OFF);
+}
+void setGreen2() {
+	HAL_GPIO_WritePin(LED_RED_2_GPIO_Port, LED_RED_2_Pin, OFF);
+	HAL_GPIO_WritePin(LED_YELLOW_2_GPIO_Port, LED_YELLOW_2_Pin, OFF);
+	HAL_GPIO_WritePin(LED_GREEN_2_GPIO_Port, LED_GREEN_2_Pin, ON);
 }
